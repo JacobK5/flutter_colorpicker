@@ -531,8 +531,10 @@ class HUEColorWheelPainter extends CustomPainter {
         center, radio, Paint()..shader = gradientS.createShader(rect));
     canvas.drawCircle(
         center, radio, Paint()..shader = gradientR.createShader(rect));
-    canvas.drawCircle(center, radio,
-        Paint()..color = Colors.black.withOpacity(1 - hsvColor.value));
+
+    // commenting this out makes it always show the wheel at full brightness
+    //canvas.drawCircle(center, radio,
+    //    Paint()..color = Colors.black.withOpacity(1 - hsvColor.value));
 
     canvas.drawCircle(
       Offset(
@@ -799,6 +801,16 @@ class ThumbPainter extends CustomPainter {
         Paint()
           ..color = Colors.white
           ..style = PaintingStyle.fill);
+    // this draws the outline, probably gonna adjust it somewhat
+    canvas.drawCircle(
+      Offset(0.0, size.height * 0.4),
+      size.height,
+      Paint()
+        ..color = Colors.black
+        ..style = PaintingStyle.stroke
+        ..strokeWidth =
+            1.0, // Adjust the stroke width for the thickness of the outline
+    );
     if (thumbColor != null) {
       canvas.drawCircle(
           Offset(0.0, size.height * 0.4),
@@ -1091,24 +1103,27 @@ class _ColorPickerInputState extends State<ColorPickerInput> {
 
 /// ColorPickerSlider without needing to handle the box wrapping it and the color value.
 class CustomColorPickerSlider extends StatefulWidget {
-  const CustomColorPickerSlider(this.onValueChanged,
+  const CustomColorPickerSlider(
       {Key? key,
+      this.onValueChanged,
       this.displayThumbColor = false,
       this.fullThumbColor = false,
       this.customColors = const [],
       this.height = 40.0,
       this.width = 225.0,
-      this.onColorReleased})
+      this.onColorReleased,
+      this.value})
       : super(key: key);
 
   /// Called during a drag when the user is selecting a new value for the slider by dragging. Value is between 0 and 255
-  final ValueChanged<int> onValueChanged;
+  final ValueChanged<int>? onValueChanged;
   final bool displayThumbColor;
   final bool fullThumbColor;
   final List<Color> customColors;
   final double height;
   final double width;
   final ValueChanged<int>? onColorReleased;
+  final int? value;
 
   @override
   _CustomColorPickerSliderState createState() =>
@@ -1117,18 +1132,39 @@ class CustomColorPickerSlider extends StatefulWidget {
 
 class _CustomColorPickerSliderState extends State<CustomColorPickerSlider> {
   HSVColor hsvColor = const HSVColor.fromAHSV(0, 0, 0, 0);
+  bool _sliding = false;
 
   void onColorChanged(HSVColor color) {
-    setState(() => hsvColor = color);
-    widget.onValueChanged(color.toColor().alpha);
+    setState(() => {hsvColor = color, _sliding = true});
+    if (widget.onValueChanged != null) {
+      widget.onValueChanged!(color.toColor().alpha);
+    }
   }
 
   void onColorReleased(Color color) {
+    setState(() {
+      _sliding = false;
+    });
     if (widget.onColorReleased != null) widget.onColorReleased!(color.alpha);
   }
 
   @override
+  void initState() {
+    if (widget.value != null) {
+      setState(() {
+        hsvColor = HSVColor.fromColor(Color.fromARGB(widget.value!, 0, 0, 0));
+      });
+    }
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (widget.value != null && !_sliding) {
+      setState(() {
+        hsvColor = HSVColor.fromColor(Color.fromARGB(widget.value!, 0, 0, 0));
+      });
+    }
     return SizedBox(
         height: widget.height,
         width: widget.width,
@@ -1367,6 +1403,8 @@ class _ColorPickerSliderState extends State<ColorPickerSlider> {
                       : null,
                   onPanEnd: (DragEndDetails details) =>
                       getBox != null ? slideEvent(getBox, box, null) : null,
+                  onTapUp: (TapUpDetails details) =>
+                      getBox != null ? slideEvent(getBox, box, null) : null,
                 );
               },
             ),
@@ -1427,8 +1465,6 @@ class ColorPickerArea extends StatefulWidget {
 
 class _ColorPickerAreaState extends State<ColorPickerArea> {
   Offset lastGlobalPosition = const Offset(0, 0);
-
-  // Rest of your methods and build method go here, replacing all instances of 'hsvColor', 'onColorChanged', 'onColorReleased', and 'paletteType' with 'widget.hsvColor', 'widget.onColorChanged', 'widget.onColorReleased', and 'widget.paletteType' respectively.
 
   void _handleColorRectChange(double horizontal, double vertical) {
     switch (widget.paletteType) {
@@ -1497,7 +1533,9 @@ class _ColorPickerAreaState extends State<ColorPickerArea> {
   }
 
   void _handleColorWheelChange(double hue, double radio, bool released) {
-    widget.onColorChanged(widget.hsvColor.withHue(hue).withSaturation(radio));
+    // I added in the .withValue(1) to make sure that it always has a color at full brightness, brightness can be scaled with a separate slider
+    widget.onColorChanged(
+        widget.hsvColor.withHue(hue).withSaturation(radio).withValue(1));
     if (widget.onColorReleased != null && released) {
       widget.onColorReleased!(
           widget.hsvColor.withHue(hue).withSaturation(radio).toColor());
