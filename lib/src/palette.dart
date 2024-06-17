@@ -1435,7 +1435,7 @@ class ColorIndicator extends StatelessWidget {
       height: height,
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(1000.0)),
-        border: Border.all(color: const Color(0xffdddddd)),
+        //border: Border.all(color: const Color(0xffdddddd)),
       ),
       child: ClipRRect(
         borderRadius: const BorderRadius.all(Radius.circular(1000.0)),
