@@ -1405,6 +1405,18 @@ class _ColorPickerSliderState extends State<ColorPickerSlider> {
                       getBox != null ? slideEvent(getBox, box, null) : null,
                   onTapUp: (TapUpDetails details) =>
                       getBox != null ? slideEvent(getBox, box, null) : null,
+                  // added to make it work with vertical sliders funnily enough
+                  // has to be horizontal since we rotate the slider so even though it's vertical it's really horizontal
+                  onHorizontalDragDown: (DragDownDetails details) =>
+                      getBox != null
+                          ? slideEvent(getBox, box, details.globalPosition)
+                          : null,
+                  onHorizontalDragUpdate: (DragUpdateDetails details) =>
+                      getBox != null
+                          ? slideEvent(getBox, box, details.globalPosition)
+                          : null,
+                  onHorizontalDragEnd: (DragEndDetails details) =>
+                      getBox != null ? slideEvent(getBox, box, null) : null,
                 );
               },
             ),
