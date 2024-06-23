@@ -220,8 +220,9 @@ class _ColorPickerState extends State<ColorPicker> {
       setState(() => currentHsvColor = HSVColor.fromColor(color));
       // notify with a callback.
       widget.onColorChanged(color);
-      if (widget.onHsvColorChanged != null)
+      if (widget.onHsvColorChanged != null) {
         widget.onHsvColorChanged!(currentHsvColor);
+      }
     }
   }
 
@@ -241,8 +242,9 @@ class _ColorPickerState extends State<ColorPicker> {
             colorToHex(color.toColor(), enableAlpha: widget.enableAlpha);
         setState(() => currentHsvColor = color);
         widget.onColorChanged(currentHsvColor.toColor());
-        if (widget.onHsvColorChanged != null)
+        if (widget.onHsvColorChanged != null) {
           widget.onHsvColorChanged!(currentHsvColor);
+        }
       },
       displayThumbColor: widget.displayThumbColor,
       onColorReleased: widget.onColorReleased,
@@ -255,8 +257,9 @@ class _ColorPickerState extends State<ColorPicker> {
         colorToHex(color.toColor(), enableAlpha: widget.enableAlpha);
     setState(() => currentHsvColor = color);
     widget.onColorChanged(currentHsvColor.toColor());
-    if (widget.onHsvColorChanged != null)
+    if (widget.onHsvColorChanged != null) {
       widget.onHsvColorChanged!(currentHsvColor);
+    }
   }
 
   Widget colorPicker() {
@@ -385,8 +388,9 @@ class _ColorPickerState extends State<ColorPicker> {
               (Color color) {
                 setState(() => currentHsvColor = HSVColor.fromColor(color));
                 widget.onColorChanged(currentHsvColor.toColor());
-                if (widget.onHsvColorChanged != null)
+                if (widget.onHsvColorChanged != null) {
                   widget.onHsvColorChanged!(currentHsvColor);
+                }
               },
               enableAlpha: widget.enableAlpha,
               embeddedText: false,
@@ -477,8 +481,9 @@ class _ColorPickerState extends State<ColorPicker> {
                   (Color color) {
                     setState(() => currentHsvColor = HSVColor.fromColor(color));
                     widget.onColorChanged(currentHsvColor.toColor());
-                    if (widget.onHsvColorChanged != null)
+                    if (widget.onHsvColorChanged != null) {
                       widget.onHsvColorChanged!(currentHsvColor);
+                    }
                   },
                   enableAlpha: widget.enableAlpha,
                   embeddedText: false,
