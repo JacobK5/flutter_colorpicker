@@ -543,7 +543,7 @@ class HUEColorWheelPainter extends CustomPainter {
         center.dy -
             hsvColor.saturation * radio * sin((hsvColor.hue * pi / 180)),
       ),
-      size.height * 0.04,
+      size.height * 0.03, // selected color circle size
       Paint()
         ..color = pointerColor ??
             (useWhiteForeground(hsvColor.toColor())
