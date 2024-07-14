@@ -655,11 +655,13 @@ class _SliderLayout extends MultiChildLayoutDelegate {
 
 /// Painter for all kinds of track types.
 class TrackPainter extends CustomPainter {
-  const TrackPainter(this.trackType, this.hsvColor, this.customColors);
+  const TrackPainter(this.trackType, this.hsvColor, this.customColors,
+      {this.thickness = 4.0});
 
   final TrackType trackType;
   final HSVColor hsvColor;
   final List<Color> customColors;
+  final double thickness;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -765,9 +767,18 @@ class TrackPainter extends CustomPainter {
         Gradient gradient = LinearGradient(colors: colors);
         canvas.drawRect(rect, Paint()..shader = gradient.createShader(rect));
         break;
-      case TrackType.custom:
+      case TrackType.custom: // jump
+        final Paint paint = Paint()..isAntiAlias = true;
+        final RRect trackRect = RRect.fromRectAndRadius(
+          Rect.fromLTWH(
+              0, (size.height - thickness) / 2, size.width, thickness),
+          Radius.circular(thickness / 2), // Rounded corners
+        );
+
         Gradient gradient = LinearGradient(colors: customColors);
-        canvas.drawRect(rect, Paint()..shader = gradient.createShader(rect));
+        paint.shader = gradient.createShader(rect);
+        canvas.drawRRect(trackRect, paint);
+        //canvas.drawRect(rect, Paint()..shader = gradient.createShader(rect));
         break;
     }
   }
@@ -785,6 +796,10 @@ class ThumbPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    double sizeScale =
+        0.75; // just change this to adjust size of thumb circle thing
+    Size originalSize = Size(size.width, size.height);
+    size = Size(size.width * sizeScale, size.height * sizeScale);
     canvas.drawShadow(
       Path()
         ..addOval(
@@ -796,14 +811,14 @@ class ThumbPainter extends CustomPainter {
       true,
     );
     canvas.drawCircle(
-        Offset(0.0, size.height * 0.4),
+        Offset(0.0, originalSize.height * 0.4),
         size.height,
         Paint()
           ..color = Colors.white
           ..style = PaintingStyle.fill);
     // this draws the outline, probably gonna adjust it somewhat
     canvas.drawCircle(
-      Offset(0.0, size.height * 0.4),
+      Offset(0.0, originalSize.height * 0.4),
       size.height,
       Paint()
         ..color = Colors.black
@@ -1366,16 +1381,25 @@ class _ColorPickerSliderState extends State<ColorPickerSlider> {
           break;
       }
 
+      const double sliderThickness =
+          5.0; // use this to adjust thickness of slider
+
       return CustomMultiChildLayout(
         delegate: _SliderLayout(),
         children: <Widget>[
           LayoutId(
             id: _SliderLayout.track,
             child: ClipRRect(
+              // jump
               borderRadius: const BorderRadius.all(Radius.circular(50.0)),
-              child: CustomPaint(
+              child: SizedBox(
+                height: sliderThickness,
+                child: CustomPaint(
                   painter: TrackPainter(
-                      widget.trackType, widget.hsvColor, widget.customColors)),
+                      widget.trackType, widget.hsvColor, widget.customColors,
+                      thickness: sliderThickness),
+                ),
+              ),
             ),
           ),
           LayoutId(
